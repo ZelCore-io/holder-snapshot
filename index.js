@@ -1,5 +1,6 @@
 /**
  * @author StultusMundi
+ * @author Jeff Vader
  */
 
 const path = require('path');
@@ -15,8 +16,8 @@ if (!fs.existsSync(homeDirPath)) {
 }
 
 // change below for correct contracts
-const solanaMint = 'dK83wTVypEpa1pqiBbHY3MNuUnT3ADUZM4wk9VZXZEc'; // Wrapped Aave testing CHANGE
-const tronContract = 'TMjQiyqCxfhvxJbrZN9amk9u6n5nEAAgpa'; // KDA testing CHANGE
+const solanaMint = 'FLUX1wa2GmbtSB6ZGi2pTNbVCw3zEeKnaPCkPtFXxqXe'; // Flux-sol
+const tronContract = 'TWr6yzukRwZ53HDe3bzcC8RCTbiKa4Zzb6'; // Flux-tron
 
 solana.start(solanaMint);
 tron.start(tronContract);
