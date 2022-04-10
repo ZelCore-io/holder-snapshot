@@ -38,8 +38,10 @@ function start(mint) {
       },
     ],
   }).then((response) => {
+    let total = 0;
     response.data.result.forEach((holder) => {
       if (Number(holder.account.data.parsed.info.tokenAmount.amount) > 0) {
+        total += Number(holder.account.data.parsed.info.tokenAmount.amount / (10 ** holder.account.data.parsed.info.tokenAmount.decimals));
         holders.push(
           {
             address: holder.pubkey,
@@ -52,7 +54,7 @@ function start(mint) {
     });
     const homeDirPath = path.join(__dirname, './export/');
     const filepath = `${homeDirPath}solanalist.json`;
-    console.log(`Done Solana - ${holders.length} records found. Exported at ${filepath}`);
+    console.log(`Done Solana - ${holders.length} records found. Exported at ${filepath}. Total Flux-SOL: ${total.toLocaleString()} (${total})`);
     writeToFileSync(filepath, JSON.stringify(holders, null, 2));
   });
 }
