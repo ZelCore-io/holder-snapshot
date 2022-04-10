@@ -10,6 +10,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
+const decimals = 8;
 const holders = [];
 
 function writeToFileSync(filepath, args) {
@@ -22,10 +23,9 @@ function writeToFileSync(filepath, args) {
 async function followNext(link) {
   const response = await axios.get(link, headers);
   holders.push(...response.data.data);
-  console.log(`${holders.length} records`);
   if (response.data.meta && response.data.meta.links) {
     const nextLink = response.data.meta.links.next;
-    followNext(nextLink);
+    await followNext(nextLink);
   }
 }
 
@@ -37,9 +37,14 @@ async function start(contract) {
         const nextLink = response.data.meta.links.next;
         await followNext(nextLink);
       }
+      let total = 0;
+      holders.forEach((holder) => {
+        const amount = Number(Object.values(holder)[0]);
+        total += Number(amount / (10 ** decimals));
+      });
       const homeDirPath = path.join(__dirname, './export/');
       const filepath = `${homeDirPath}tronlist.json`;
-      console.log(`Done Tron - ${holders.length} records found. Exported at ${filepath}`);
+      console.log(`Done Tron - ${holders.length} records found. Exported at ${filepath}. Total Flux-TRON: ${total.toLocaleString()} (${total}).`);
       writeToFileSync(filepath, JSON.stringify(holders, null, 2));
     });
 }
