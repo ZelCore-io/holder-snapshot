@@ -72,9 +72,14 @@ async function start(contract) {
   const transfers = await getContractTransfers(contract, '0x0', blockNum);
   const balances = await getBalanceList(transfers);
 
+  let total = 0;
+  balances.forEach((balance) => {
+    total += Number(balance.balance / (10 ** 8));
+  });
+
   const homeDirPath = path.join(__dirname, './export/');
   const filepath = `${homeDirPath}ethlist.json`;
-  console.log(`Done Eth - ${balances.length} records found. Exported at ${filepath}`);
+  console.log(`Done Eth - ${balances.length} records found. Exported at ${filepath}. Total Flux-ETH: ${total.toLocaleString()} (${total}).`);
   writeToFileSync(filepath, JSON.stringify(balances, null, 2));
 }
  
