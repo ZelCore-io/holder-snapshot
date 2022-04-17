@@ -6,16 +6,18 @@
   "repository": "https://github.com/ZelCore-io/holder-snapshot",
   "author": "stultusmundi <bmg.stultusmundi@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "snapshot": "node index.js",
+    "lint": "eslint ./ --fix"
+  },
   "dependencies": {
-    "axios": "^0.23.0",
-    "fs": "^0.0.1-security",
-    "path": "^0.12.7"
+    "axios": "^0.26.1"
   },
   "devDependencies": {
-    "eslint": "^8.0.1",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.26.1"
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.29.4"
   }
 }
