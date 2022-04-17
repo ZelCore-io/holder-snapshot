@@ -8,7 +8,7 @@ const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
 
-const BATCH_SIZE = 1000;
+const BATCH_SIZE = 40000;
 const BSCSCAN_API_KEY = '2ZFM4AB7MG524N2GD1S13Q9MUY16VVJI8F';
 
 const urls = [
@@ -86,33 +86,32 @@ async function getContractTransferBlock(contract, fromBlock, toBlock) {
   return [];
 }
 
-async function getContractTransfers(contract, fromBlock, toBlock) {
-  let toBlockNum = Number.parseInt(toBlock);
-  let fromBlockNum = toBlockNum - BATCH_SIZE + 1;
-  const finalFromBlockNum = Number.parseInt(fromBlock);
+async function getContractTransfers(contract, fromBlock, toBlock, batchSize = BATCH_SIZE) {
+  const fromBlockNum = Number.parseInt(fromBlock);
+  const toBlockNum = Number.parseInt(toBlock);
   const logs = [];
-  let running = true;
-  while (running) {
+  let blockProcessStart = fromBlockNum;
+  let blockProcessEnd = (blockProcessStart + batchSize) > toBlockNum ? toBlockNum : (blockProcessStart + batchSize);
+  while (blockProcessStart <= toBlockNum) {
     try {
       // eslint-disable-next-line no-await-in-loop
-      const blockLogs = await getContractTransferBlock(contract, fromBlockNum, toBlockNum);
-      process.stdout.clearLine();
-      process.stdout.cursorTo(0);
-      process.stdout.write(`Fetching contract BSC TXS from block ${fromBlockNum} to block ${toBlockNum}. Remaining Blocks: ${Number(toBlockNum - finalFromBlockNum)}`);
-      logs.push(...blockLogs);
-      if (fromBlockNum > BATCH_SIZE && fromBlockNum > finalFromBlockNum + BATCH_SIZE) {
-        toBlockNum -= BATCH_SIZE;
-        fromBlockNum -= BATCH_SIZE;
+      const blockLogs = await getContractTransferBlock(contract, blockProcessStart, blockProcessEnd);
+      if (blockLogs.length >= 1000) {
+        blockProcessEnd = Math.ceil(blockProcessEnd - ((blockProcessEnd - blockProcessStart) / 2));
       } else {
-        process.stdout.write('\n');
-        running = false;
+        logs.push(...blockLogs);
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        process.stdout.write(`Fetching contract BSC TXS from block ${blockProcessStart} to block ${blockProcessEnd}. Remaining Blocks: ${Number(toBlockNum - blockProcessEnd)}`);
+        blockProcessStart = blockProcessEnd + 1;
+        blockProcessEnd = (blockProcessStart + batchSize) > toBlockNum ? toBlockNum : (blockProcessStart + batchSize);
       }
     } catch (error) {
+      console.log('ERRORED');
       console.log(error);
     }
   }
-  const blockLogs = await getContractTransferBlock(contract, finalFromBlockNum, fromBlockNum);
-  logs.push(...blockLogs);
+  process.stdout.write('\n');
   return logs;
 }
 
@@ -143,7 +142,7 @@ async function start(contract) {
   let balances = [];
   try {
     const blockNum = await getBSCRPCResponse('eth_blockNumber');
-    const transfers = await getContractTransfers(contract, '0x7F3236', blockNum);
+    const transfers = await getContractTransfers(contract, '0x7F3236', blockNum); // 8335926, contract created on 8335927
     balances = await getBalanceList(transfers);
   } catch (error) {
     console.log();
